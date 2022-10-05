@@ -66,6 +66,13 @@ public class ControllerP {
 		}
 		
 		listaP.add(pag.getProductPage(menorPrecioFound.getLink()));
+		
+		for(int i=0 ;i<listaP.size(); i++) {
+			System.out.println(listaP.get(i).getNombre());
+			System.out.println(listaP.get(i).getDescripcion());
+			System.out.println(listaP.get(i).getPrecio());
+		}
+		
 		System.out.println("Link elegido:" +menorPrecioFound.getLink());
 		return listaP;
 		

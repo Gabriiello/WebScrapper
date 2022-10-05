@@ -20,8 +20,9 @@ public class PageSearchImpl implements PageSearch {
 	//link para busqueda en amazon(search es remplazada por la palabra a buscar)
 	static private  String LINKAMAZON= "https://www.amazon.com/s?k=search&__mk_es_US=%C3%85M%C3%85%C5%BD%C3%95%C3%91";
 	private int numProducts;
+	String nuevaBusqueda;
 	private Document pageSearch; //Aqui se aloja todo el html de la pagina
-	private List <ProductFound> productosCompletos= new ArrayList<>();
+	private List <ProductFound> productosCompletos;
 	
 	
 	
@@ -36,12 +37,19 @@ public class PageSearchImpl implements PageSearch {
 	public void loadProductSearch(String product) {
 		
 		//remplaza la palabra search del url por el producto a buscar si el producto a buscar tiene espacios los remplaza por +
-		String nuevaBusqueda= LINKAMAZON.replaceAll("search", product.replace(" ", "+"));
-		
+		nuevaBusqueda= LINKAMAZON.replaceAll("search", product.replace(" ", "+"));
+		System.out.println("este es el link de los objetos: "+nuevaBusqueda);
 		
 		try {
 			
-			pageSearch= (Document) Jsoup.connect(nuevaBusqueda).get(); //obtenemos el html y lo asigamos al ducument
+			pageSearch= (Document) Jsoup.connect(nuevaBusqueda)
+					    .userAgent("Mozilla/5.0 Chrome/26.0.1410.64 Safari/537.31")
+			            .maxBodySize(1024*1024*3) 
+			            .followRedirects(true)
+			            .timeout(100000)
+			            .get(); //obtenemos el html y lo asigamos al ducument
+			
+			
 			numProducts= Integer.parseInt(pageSearch.getElementsByClass("s-pagination-strip").get(0).getElementsByClass("s-pagination-item s-pagination-disabled").text());
 			System.out.println("Las paginas son: "+numProducts);
 		} catch (IOException e) {
@@ -118,7 +126,7 @@ public class PageSearchImpl implements PageSearch {
 	@Override
 	public void cargarPaginas() {
 		int randonTime;
-		
+		productosCompletos= new ArrayList();
 		
 		for(int i=0; i<numProducts; i++ ) {
 			randonTime= (int) (Math.random()*5000+1000);
@@ -136,11 +144,17 @@ public class PageSearchImpl implements PageSearch {
 	
 	private void conectTopage(int index) {
 		String numPagina= "&page="+index;
-		String newLinkAmazonNumberPage= LINKAMAZON.substring(0,33)+numPagina+LINKAMAZON.substring(LINKAMAZON.indexOf("&"));
+		String newLinkAmazonNumberPage= nuevaBusqueda.substring(0,nuevaBusqueda.indexOf("&"))+numPagina+nuevaBusqueda.substring(nuevaBusqueda.indexOf("&"));
 		
         try {
 			
-			pageSearch= (Document) Jsoup.connect(newLinkAmazonNumberPage).get(); //obtenemos el html y lo asigamos al ducument
+			pageSearch= (Document) Jsoup.connect(newLinkAmazonNumberPage)
+					.userAgent("Mozilla/5.0 Chrome/26.0.1410.64 Safari/537.31")
+			           // .ignoreHttpErrors(true)
+			            .maxBodySize(1024*1024*3) 
+			            .followRedirects(true)
+			            .timeout(100000)
+			            .get();//obtenemos el html y lo asigamos al ducument
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

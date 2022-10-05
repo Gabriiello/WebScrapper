@@ -106,7 +106,13 @@ public class PageAmazonImpl implements PageAccces {
 		 try {
 			    
 			    
-				pagAmazon= (Document) Jsoup.connect(url).get(); //creamos una conexion entre la pagina y la guardamos en un document
+				pagAmazon= (Document) Jsoup.connect(url)
+						.userAgent("Mozilla/5.0 Chrome/26.0.1410.64 Safari/537.31")
+				           // .ignoreHttpErrors(true)
+				            .maxBodySize(1024*1024*3) 
+				            .followRedirects(true)
+				            .timeout(100000)
+				            .get();//creamos una conexion entre la pagina y la guardamos en un document
 				//producto.setNombre(pagAmazon.select("title").text());
 				producto.setUrl(url);
 				producto.setNombre(getNombrePage());

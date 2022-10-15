@@ -13,7 +13,6 @@ import com.scrapper.models.ProductSave;
 
 @Repository
 @Transactional
-
 public class daoProductImplement implements daoProduct { //clase que se encarga de conectar y ahcer querys a la bd
 
 	@PersistenceContext

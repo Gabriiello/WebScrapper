@@ -45,12 +45,18 @@ public class PageSearchImpl implements PageSearch {
 			pageSearch= (Document) Jsoup.connect(nuevaBusqueda)
 					    .userAgent("Mozilla/5.0 Chrome/26.0.1410.64 Safari/537.31")
 			            .maxBodySize(1024*1024*3) 
-			            .followRedirects(true)
 			            .timeout(100000)
 			            .get(); //obtenemos el html y lo asigamos al ducument
 			
+			try {//Se intenta conseguir el total de paginas (numero entero alojado en la clase s-pagination-disabled)
+				numProducts= Integer.parseInt(pageSearch.getElementsByClass("s-pagination-strip").get(0).getElementsByClass("s-pagination-item s-pagination-disabled").text());
+			} catch (Exception e) {//Al momento de que la paginacion no tenga el total de paginas en la clase pagination disable da error dado que una cadena vacia no se convertirá en entero
+				numProducts= pageSearch.getElementsByClass("s-pagination-item s-pagination-button").size();//Buscamos el total de paginas manuelmente con el tamaño del arrayList que nos devuelve pagination-Item
+				numProducts= numProducts==0?1:numProducts+1;//se suma 1 porque no se cuenta la pagina seleccionada
+			}
 			
-			numProducts= Integer.parseInt(pageSearch.getElementsByClass("s-pagination-strip").get(0).getElementsByClass("s-pagination-item s-pagination-disabled").text());
+
+			
 			System.out.println("Las paginas son: "+numProducts);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -70,7 +76,7 @@ public class PageSearchImpl implements PageSearch {
 		
 		
 		//Selecionamos en el html la clase que contiene tanto el precio como el link
-		Elements productosBuscados= pageSearch.getElementsByClass("s-card-container s-overflow-hidden aok-relative puis-include-content-margin s-latency-cf-section s-card-border"); 
+		Elements productosBuscados= pageSearch.getElementsByClass("s-card-container s-overflow-hidden aok-relative puis-include-content-margin puis s-latency-cf-section s-card-border");		
 		double price= 0; 
 
 		
@@ -78,13 +84,16 @@ public class PageSearchImpl implements PageSearch {
 		//Los productos que no son tecnologia se organizan diferente en la apginad e amazon por eso es necesario seleccionar otras clases
 		//para tener acceso a ellos.
 		if(productosBuscados.isEmpty()) { //Entonces si productosBuscados es vacio
+			System.out.println("ENTRO A PRODUCTOS NO TECNOLOGICOS");
 			Elements noTecnologia= pageSearch.getElementsByClass("s-main-slot s-result-list s-search-results sg-row");
-			productosBuscados= noTecnologia.get(0).getElementsByClass("s-card-container s-overflow-hidden aok-relative puis-expand-height puis-include-content-margin s-latency-cf-section s-card-border");
+			System.out.println(noTecnologia.size());
+			productosBuscados= noTecnologia.get(0).getElementsByClass("s-card-container s-overflow-hidden aok-relative puis-include-content-margin puis s-latency-cf-section s-card-border");
 		}
 		
 		
 		
 		for(Element product: productosBuscados) {
+			System.out.println("entro a asignacion");
 			if(product.getElementsByClass("span.a-color-secondary").isEmpty()) { //si el producto no es patrocinado
 				ProductFound producto= new ProductFound();
 				
@@ -95,14 +104,16 @@ public class PageSearchImpl implements PageSearch {
 					} catch (Exception e) {
 						System.out.println("Error precio");
 						price=0;
-					}finally {
-						
 					}
 					
 				//asignamos los valores
 				producto.setPrice(price);
 				producto.setLink(urlAmazon+product.getElementsByClass("a-link-normal s-underline-text s-underline-link-text s-link-style a-text-normal").attr("href"));
-				productosCompletos.add(producto);
+				
+				if(producto.getPrice()!=0) {//si el precio del producto no esta disponible no se agregará
+					productosCompletos.add(producto);
+				}
+				
 			}
 		}
 		
@@ -149,8 +160,8 @@ public class PageSearchImpl implements PageSearch {
         try {
 			
 			pageSearch= (Document) Jsoup.connect(newLinkAmazonNumberPage)
-					.userAgent("Mozilla/5.0 Chrome/26.0.1410.64 Safari/537.31")
-			           // .ignoreHttpErrors(true)
+					     .userAgent("Mozilla/5.0 Chrome/26.0.1410.64 Safari/537.31")
+			             //.ignoreHttpErrors(true)
 			            .maxBodySize(1024*1024*3) 
 			            .followRedirects(true)
 			            .timeout(100000)

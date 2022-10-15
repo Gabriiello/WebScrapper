@@ -1,11 +1,15 @@
 package com.scrapper.models;
 
-public class ProductFound {
+public  class ProductFound {
 
    private String link;
    private Double price;
-
-   public String getLink() {
+   
+   
+   
+   
+   
+public String getLink() {
 	  return link;
    }
    public void setLink(String link) {

@@ -9,7 +9,9 @@ async function searchProducts(){
     method: 'GET'
   });
 
-  window.location.href= "productoCheck.html"
+
+
+  window.location.href= "/producto"
    
 }
 

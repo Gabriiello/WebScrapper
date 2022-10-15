@@ -7,7 +7,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-@Entity //bd
+@Entity(name = "productos") //bd
 @Table(name="productosscrape") 
 public class ProductSave {
 
